@@ -59,55 +59,6 @@ Rebind M-x to C-x C-m
   (global-set-key "\C-x\C-m" 'execute-extended-command)
 #+END_SRC
 
-* Org
-Don't ask before executing a code block
-#+BEGIN_SRC emacs-lisp
-(setq org-confirm-babel-evaluate nil)
-#+END_SRC
-
-Don't indent code blocks
-#+BEGIN_SRC emacs-lisp
-(setq org-edit-src-content-indentation 0)
-#+END_SRC
-
-** Org Capture
-#+BEGIN_SRC emacs-lisp
-(custom-set-variables
- '(org-directory "~/Dropbox/org/til.org")
- '(org-startup-folded 'overview))
-
-(global-set-key (kbd "C-c c") 'org-capture)
-
-(setq org-capture-templates
-      '(("t" "TIL" entry (file+headline "~/Dropbox/org/til.org" "TIL")
-         "* %^{TIL} %^g\n%^{Description}\n%T" :prepend t)
-				("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
-         "* %? %^L %^g\n%T" :prepend t)
-        ("k" "Keybinding" entry (file "~/Dropbox/org/learn-keybindings.org")
-         "* =%^{Keybinding}= %^g\n%^{Description}")))
-
-(defadvice org-capture-finalize
-		(after delete-capture-frame activate)
-	"Advise capture-finalize to close the frame"
-  (if (equal "capture" (frame-parameter nil 'name))
-      (delete-frame)))
-
-(defadvice org-capture-destroy
-    (after delete-capture-frame activate)
-  "Advise capture-destroy to close the frame"
-  (if (equal "capture" (frame-parameter nil 'name))
-      (delete-frame)))
-#+END_SRC
-
-** Org Structure Templates
-Modify =<s= to insert "emacs-lisp" by default
-[[https://nicholasvanhorn.com/posts/org-structure-completion.html][https://nicholasvanhorn.com/posts/org-structure-completion.html]]
-#+BEGIN_SRC emacs-lisp
-(eval-after-load 'org
-  '(progn (add-to-list 'org-structure-template-alist
-											 '("s" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
-#+END_SRC
-
 * Packages
 ** Add package archives
 #+BEGIN_SRC emacs-lisp
@@ -261,6 +212,55 @@ http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
 #+END_SRC
 
 * Modes
+** org
+ Don't ask before executing a code block
+ #+BEGIN_SRC emacs-lisp
+ (setq org-confirm-babel-evaluate nil)
+ #+END_SRC
+
+ Don't indent code blocks
+ #+BEGIN_SRC emacs-lisp
+ (setq org-edit-src-content-indentation 0)
+ #+END_SRC
+
+*** Org Capture
+ #+BEGIN_SRC emacs-lisp
+ (custom-set-variables
+	'(org-directory "~/Dropbox/org")
+	'(org-startup-folded 'overview))
+
+ (global-set-key (kbd "C-c c") 'org-capture)
+
+ (setq org-capture-templates
+       '(("t" "TIL" entry (file+headline "~/Dropbox/org/til.org" "TIL")
+					"* %^{TIL} %^g\n%^{Description}\n%T" :prepend t)
+				 ("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
+					"* %? %^L %^g\n%T" :prepend t)
+         ("k" "Keybinding" entry (file "~/Dropbox/org/learn-keybindings.org")
+					"* =%^{Keybinding}= %^g\n%^{Description}")))
+
+ (defadvice org-capture-finalize
+		 (after delete-capture-frame activate)
+	 "Advise capture-finalize to close the frame"
+   (if (equal "capture" (frame-parameter nil 'name))
+       (delete-frame)))
+
+ (defadvice org-capture-destroy
+     (after delete-capture-frame activate)
+   "Advise capture-destroy to close the frame"
+   (if (equal "capture" (frame-parameter nil 'name))
+       (delete-frame)))
+ #+END_SRC
+
+*** Org Structure Templates
+ Modify =<s= to insert "emacs-lisp" by default
+ [[https://nicholasvanhorn.com/posts/org-structure-completion.html][https://nicholasvanhorn.com/posts/org-structure-completion.html]]
+ #+BEGIN_SRC emacs-lisp
+ (eval-after-load 'org
+   '(progn (add-to-list 'org-structure-template-alist
+												'("s" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
+ #+END_SRC
+
 ** dired
 
 Ability to use =a= to visit a new directory or file in =dired= instead
@@ -272,7 +272,6 @@ for /every/ interaction whereas =a= reuses the current buffer.
 #+END_SRC
 
 Human readable units
-
 #+BEGIN_SRC emacs-lisp
 (setq-default dired-listing-switches "-alh")
 #+END_SRC
