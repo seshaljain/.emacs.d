@@ -1,0 +1,13 @@
+.#*
+\#*\#
+*~
+*.html
+*.eld
+*.dat
+*.html
+*.pdf
+*.tex
+
+eshell
+auto-save-list/
+elpa/
