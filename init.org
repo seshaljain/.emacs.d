@@ -53,12 +53,6 @@ Define separate =customize= file
   (load custom-file t)
 #+END_SRC
 
-* Keybindings
-Rebind M-x to C-x C-m
-#+BEGIN_SRC emacs-lisp
-  (global-set-key "\C-x\C-m" 'execute-extended-command)
-#+END_SRC
-
 * Packages
 ** Add package archives
 #+BEGIN_SRC emacs-lisp
@@ -744,7 +738,7 @@ utf-8 encoding for all files, resolves =\u...= in terminal
 Dracula
 #+BEGIN_SRC emacs-lisp :tangle:no
 (use-package dracula-theme
-	:config (load-theme 'dracula))
+  :config (load-theme 'dracula))
 #+END_SRC
 
 *** Font
@@ -767,9 +761,9 @@ scroll-preserve-screen-position 1)
 #+END_SRC
 
 *** UI Elements
+**** Disable scrollbars and toolbar
 #+BEGIN_SRC emacs-lisp
 (scroll-bar-mode -1)
-;; (menu-bar-mode -1)
 (tool-bar-mode -1)
 #+END_SRC
 
@@ -777,8 +771,19 @@ scroll-preserve-screen-position 1)
 #+BEGIN_SRC emacs-lisp
 (setq echo-keystrokes 0.1)
 #+END_SRC
-** Text Editing
 
+**** Thin cursor
+#+BEGIN_SRC emacs-lisp
+(setq-default cursor-type 'bar)
+#+END_SRC
+
+**** Always show line and col num in modeline
+#+BEGIN_SRC emacs-lisp
+(setq line-number-mode t)
+(setq column-number-mode t)
+#+END_SRC
+
+** Text Editing
 *** Always highlight parentheses
 #+BEGIN_SRC emacs-lisp
 (show-paren-mode 1)
@@ -792,6 +797,7 @@ scroll-preserve-screen-position 1)
 *** Autosave in =/tmp=
 #+BEGIN_SRC emacs-lisp
 (setq make-backup-files nil)
+(setq auto-save-default nil)
 
 (setq backup-directory-alist
 			`((".*" . ,temporary-file-directory)))
@@ -813,15 +819,7 @@ scroll-preserve-screen-position 1)
 Set tab width to 2 spaces
 #+BEGIN_SRC emacs-lisp
 (setq-default tab-width 2
-							intent-tabs-mode nil)
-
-;;(setq js-indent-level 2)
-
-;;(setq python-indent 2)
-
-;;(setq css-indent-offset 2)
-
-;;(setq web-mode-markup-indent-offset 2)
+							indent-tabs-mode nil)
 #+END_SRC
 
 *** Add a newline at end of file
@@ -832,4 +830,15 @@ Set tab width to 2 spaces
 *** Delete trailing whitespace on save
 #+BEGIN_SRC emacs-lisp
 (add-hook 'write-file-hooks 'delete-trailing-whitespace)
+#+END_SRC
+
+*** Replace highlighted text
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode 1)
+#+END_SRC
+
+* Keybindings
+Rebind M-x to C-x C-m
+#+BEGIN_SRC emacs-lisp
+  (global-set-key "\C-x\C-m" 'execute-extended-command)
 #+END_SRC
