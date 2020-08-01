@@ -8,6 +8,8 @@
 *.pdf
 *.tex
 
+init.el
+init.elc
 eshell
 auto-save-list/
 elpa/
