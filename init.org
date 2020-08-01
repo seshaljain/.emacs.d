@@ -363,6 +363,37 @@ special ones
         (buffer-list)))
 #+END_SRC
 
+** Move lines up or down
+#+BEGIN_SRC emacs-lisp
+(defun my/move-line-up ()
+  "Move line up."
+  (interactive)
+  (transpose-lines 1)
+  (forward-line -2))
+
+(defun my/move-line-down ()
+  "Move line down."
+  (interactive)
+  (forward-line 1)
+  (transpose-lines 1)
+  (forward-line -1))
+#+END_SRC
+
+** Create new scratch buffer
+#+BEGIN_SRC emacs-lisp
+(defun my/create-scratch-buffer nil
+	"Create a new scratch buffer <*scratchN*>."
+  (interactive)
+  (let ((n 0) bufname)
+    (while (progn
+             (setq bufname (concat "*scratch"
+																	 (if (= n 0) "" (int-to-string n)) "*"))
+             (setq n (1+ n))
+             (get-buffer bufname)))
+    (switch-to-buffer (get-buffer-create bufname))
+    (org-mode)))
+#+END_SRC
+
 ** Actually kill-word
 #+BEGIN_SRC emacs-lisp
 (defun my/kill-inner-word ()
@@ -372,42 +403,104 @@ special ones
   (backward-word)
   (kill-word 1))
 
-(global-set-key (kbd "C-c w k") 'my/kill-inner-word)
+(global-set-key (kbd "C-c k w") 'my/kill-inner-word)
 #+END_SRC
 
-** Sudo save
-If the current buffer is not writable, ask if it should be saved with
-=sudo=.
+** Kill Region / Line
+- =C-w= kills the current line
+- =M-w= copies the current line
 
-Happily taken from Pascals configuration:
-https://github.com/SirPscl/emacs.d#sudo-save
-
+If there is an active region, =C-w= and =M-w= work as default
 #+BEGIN_SRC emacs-lisp
-(defun my/sudo-file-name (filename)
-  "Prepend '/sudo:root@`system-name`:' to FILENAME if appropriate.
-This is, when it doesn't already have a sudo-prefix."
-  (if (not (or (string-prefix-p "/sudo:root@localhost:"
-																filename)
-							 (string-prefix-p (format "/sudo:root@%s:" (system-name))
-																filename)))
-			(format "/sudo:root@%s:%s" (system-name) filename)
-    filename))
+(defadvice kill-region (before slick-cut activate compile)
+  "When called interactively with no active region, kill a single
+line instead."
+  (interactive
+   (if mark-active
+       (list (region-beginning) (region-end))
+     (list (line-beginning-position) (line-beginning-position 2)))))
 
-(defun my/sudo-save-buffer ()
-  "Save FILENAME with sudo if the user approves."
+(defadvice kill-ring-save (before slick-copy activate compile)
+  "When called interactively with no active region, copy a single
+line instead."
+  (interactive
+   (if mark-active
+       (list (region-beginning) (region-end))
+     (message "Copied line")
+     (list (line-beginning-position) (line-beginning-position 2)))))
+#+END_SRC
+
+** Rename Buffer & File
+#+BEGIN_SRC emacs-lisp
+(defun my/rename-current-buffer-file ()
+  "Renames current buffer and file it is visiting."
   (interactive)
-  (when buffer-file-name
-    (let ((file (my/sudo-file-name buffer-file-name)))
-			(if (yes-or-no-p (format "Save file as %s? " file))
-					(write-file file)))))
+  (let ((name (buffer-name))
+        (filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (error "Buffer '%s' is not visiting a file!" name)
+      (let ((new-name (read-file-name "New name: " filename)))
+        (if (get-buffer new-name)
+            (error "A buffer named '%s' already exists!" new-name)
+          (rename-file filename new-name 1)
+          (rename-buffer new-name)
+          (set-visited-file-name new-name)
+          (set-buffer-modified-p nil)
+          (message "File '%s' successfully renamed to '%s'"
+                   name (file-name-nondirectory new-name)))))))
+#+END_SRC
 
-(advice-add 'save-buffer :around
-						'(lambda (fn &rest args)
-							 (when (or (not (buffer-file-name))
-												 (not (buffer-modified-p))
-												 (file-writable-p (buffer-file-name))
-												 (not (my/sudo-save-buffer)))
-								 (call-interactively fn args))))
+** Toggle Quotes
+#+BEGIN_SRC emacs-lisp
+(defun my/get-quote-chars ()
+  "Get available string symbols from the active syntax-table"
+  (let ((quotes '(?\' ?\" ?\`)))
+    (seq-filter (lambda (q) (eq (char-syntax q) 34)) quotes)))
+
+(defun my/toggle-quotes ()
+  "Toggles a string between quote levels in most programming modes"
+  (interactive)
+  (let* ((beg (nth 8 (syntax-ppss)))
+         (orig-quote (char-after beg))
+         (quotes (my/get-quote-chars))
+         (new-quote (case (length quotes)
+                      (1 (when (eq orig-quote (car quotes))
+                           (car quotes)))
+                      (2 (cond
+                          ((eq orig-quote (nth 0 quotes)) (nth 1 quotes))
+                          ((eq orig-quote (nth 1 quotes)) (nth 0 quotes))))
+                      (3 (cond
+                          ((eq orig-quote (nth 0 quotes)) (nth 1 quotes))
+                          ((eq orig-quote (nth 1 quotes)) (nth 2 quotes))
+                          ((eq orig-quote (nth 2 quotes)) (nth 0 quotes)))))))
+    (save-restriction
+      (widen)
+      (save-excursion
+        (catch 'done
+          (unless new-quote
+            (message "Not inside a string")
+            (throw 'done nil))
+          (goto-char beg)
+          (delete-char 1)
+          (insert-char new-quote)
+          (while t
+            (cond ((eobp)
+                   (throw 'done nil))
+                  ((= (char-after) orig-quote)
+                   (delete-char 1)
+                   (insert-char new-quote)
+                   (throw 'done nil))
+                  ((= (char-after) ?\\)
+                   (forward-char 1)
+                   (when (= (char-after) orig-quote)
+                     (delete-char -1))
+                   (forward-char 1))
+                  ((= (char-after) new-quote)
+                   (insert-char ?\\)
+                   (forward-char 1))
+                  (t (forward-char 1)))))))))
+
+(bind-key "C-c q '" 'my/toggle-quotes)
 #+END_SRC
 
 ** Open non-text files in Native appliations
@@ -436,62 +529,72 @@ http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
 																 (start-process "" nil "xdg-open" $fpath))) $file-list))))))
 #+END_SRC
 
+** C++ compile without Makefile
+#+BEGIN_SRC emacs-lisp
+(add-hook 'c++-mode-hook
+  (lambda ()
+    (unless (file-exists-p "Makefile")
+      (set (make-local-variable 'compile-command)
+       (let ((file (file-name-nondirectory buffer-file-name)))
+         (concat "g++ -g -O2 -Wall -std=c++14 -o "
+             (file-name-sans-extension file)
+             " " file))))))
+#+END_SRC
+
 * Modes
 ** org
- Don't ask before executing a code block
- #+BEGIN_SRC emacs-lisp
- (setq org-confirm-babel-evaluate nil)
- #+END_SRC
+Don't ask before executing a code block
+#+BEGIN_SRC emacs-lisp
+(setq org-confirm-babel-evaluate nil)
+#+END_SRC
 
- Don't indent code blocks
- #+BEGIN_SRC emacs-lisp
- (setq org-edit-src-content-indentation 0)
- #+END_SRC
+Don't indent code blocks
+#+BEGIN_SRC emacs-lisp
+(setq org-edit-src-content-indentation 0)
+#+END_SRC
 
 *** Org Capture
- #+BEGIN_SRC emacs-lisp
- (custom-set-variables
-	'(org-directory "~/Dropbox/org")
-	'(org-startup-folded 'overview))
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(org-directory "~/Dropbox/org")
+ '(org-startup-folded 'overview))
 
- (global-set-key (kbd "C-c c") 'org-capture)
+(global-set-key (kbd "C-c c") 'org-capture)
 
- (setq org-capture-templates
-       '(("t" "TIL" entry (file+headline "~/Dropbox/org/til.org" "TIL")
-					"* %^{TIL} %^g\n%^{Description}\n%T" :prepend t)
-				 ("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
-					"* %? %^L %^g\n%T" :prepend t)
-         ("k" "Keybinding" entry (file "~/Dropbox/org/learn-keybindings.org")
-					"* =%^{Keybinding}= %^g\n%^{Description}")))
+(setq org-capture-templates
+      '(("t" "TIL" entry (file+headline "~/Dropbox/org/til.org" "TIL")
+				 "* %^{TIL} %^g\n%^{Description}\n%T" :prepend t)
+				("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
+				 "* %? %^L %^g\n%T" :prepend t)
+        ("k" "Keybinding" entry (file "~/Dropbox/org/learn-keybindings.org")
+				 "* =%^{Keybinding}= %^g\n%^{Description}")))
 
- (defadvice org-capture-finalize
-		 (after delete-capture-frame activate)
-	 "Advise capture-finalize to close the frame"
-   (if (equal "capture" (frame-parameter nil 'name))
-       (delete-frame)))
+(defadvice org-capture-finalize
+		(after delete-capture-frame activate)
+	"Advise capture-finalize to close the frame"
+  (if (equal "capture" (frame-parameter nil 'name))
+      (delete-frame)))
 
- (defadvice org-capture-destroy
-     (after delete-capture-frame activate)
-   "Advise capture-destroy to close the frame"
-   (if (equal "capture" (frame-parameter nil 'name))
-       (delete-frame)))
- #+END_SRC
+(defadvice org-capture-destroy
+    (after delete-capture-frame activate)
+  "Advise capture-destroy to close the frame"
+  (if (equal "capture" (frame-parameter nil 'name))
+      (delete-frame)))
+#+END_SRC
 
 *** Org Structure Templates
- Modify =<s= to insert "emacs-lisp" by default
- [[https://nicholasvanhorn.com/posts/org-structure-completion.html][https://nicholasvanhorn.com/posts/org-structure-completion.html]]
- #+BEGIN_SRC emacs-lisp
- (eval-after-load 'org
-   '(progn (add-to-list 'org-structure-template-alist
-												'("s" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
- #+END_SRC
+Modify =<s= to insert "emacs-lisp" by default
+[[https://nicholasvanhorn.com/posts/org-structure-completion.html][https://nicholasvanhorn.com/posts/org-structure-completion.html]]
+#+BEGIN_SRC emacs-lisp
+(eval-after-load 'org
+  '(progn (add-to-list 'org-structure-template-alist
+											 '("s" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
+#+END_SRC
 
 ** dired
-
 Ability to use =a= to visit a new directory or file in =dired= instead
 of using =RET=. =RET= works just fine, but it will create a new buffer
 for /every/ interaction whereas =a= reuses the current buffer.
-
 #+BEGIN_SRC emacs-lisp
 (put 'dired-find-alternate-file 'disabled nil)
 #+END_SRC
