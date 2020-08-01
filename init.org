@@ -691,6 +691,36 @@ Change default split keybindings
 (global-set-key (kbd "C-x 3") 'my/hsplit-last-buffer)
 #+END_SRC
 
+*** Use ibuffer as default buffer list
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+(setq ibuffer-saved-filter-groups
+			'(("files"
+							 ("dired" (mode . dired-mode))
+							 ("org" (name . "^.*org$"))
+
+							 ("web" (or (mode . web-mode)
+													(mode . css-mode)))
+               ("js" (mode . rjsx-mode))
+							 ("shell" (or (mode . eshell-mode)
+														(mode . shell-mode)))
+							 ("programming" (mode . python-mode))
+							 ("emacs" (or
+												 (name . "^\\*scratch\\*$")
+												 (name . "^\\*Compile-Log\\*$")
+												 (name . "^\\*Messages\\*$"))))))
+
+(add-hook 'ibuffer-mode-hook
+					(lambda ()
+						(ibuffer-auto-mode 1)
+						(ibuffer-switch-to-saved-filter-groups "files")))
+
+(setq ibuffer-show-empty-filter-groups nil)
+
+(setq ibuffer-expert t)
+#+END_SRC
+
 ** UI
 *** Encoding
 utf-8 encoding for all files, resolves =\u...= in terminal
