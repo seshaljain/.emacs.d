@@ -85,14 +85,239 @@ Rebind M-x to C-x C-m
 #+END_SRC
 
 ** Package configs
+*** ace-jump-mode
+#+BEGIN_SRC emacs-lisp
+(use-package ace-jump-mode
+  :bind ("M-s" . ace-jump-mode)
+  :hook (prog-mode))
+#+END_SRC
+
+*** auto-complete
+#+BEGIN_SRC emacs-lisp
+(use-package auto-complete
+  :config
+  (ac-config-default)
+  (global-auto-complete-mode t)
+  (add-to-list 'ac-modes 'rjsx-mode))
+#+END_SRC
+
+*** counsel/swiper/ivy
+#+BEGIN_SRC emacs-lisp
+(use-package counsel
+	:bind (("M-x" . counsel-M-x)
+				 ("C-x C-f" . counsel-find-file)
+				 ("C-x l" . counsel-locate)
+				 ("C-x b" . counsel-ibuffer)
+	       ("M-y" . counsel-yank-pop)))
+
+(use-package swiper
+  :diminish ivy-mode
+	:config
+	(ivy-mode 1)
+	(setq ivy-use-virtual-buffers t)
+	(setq enable-recursive-minibuffers t)
+  (setq ivy-count-format "[%d/%d] ")
+	:bind (("C-s" . swiper)
+	       :map ivy-minibuffer-map ("M-y" . ivy-next-line)))
+#+END_SRC
+
+*** diminish
+#+BEGIN_SRC emacs-lisp
+(use-package diminish)
+#+END_SRC
+
+*** expand-region
+#+BEGIN_SRC emacs-lisp
+(use-package expand-region
+  :bind ("M-=" . er/expand-region))
+#+END_SRC
+
+*** iedit
+#+BEGIN_SRC emacs-lisp
+(use-package iedit)
+#+END_SRC
+
+*** js2
+Taken from [[https://github.com/anschwa/emacs.d][https://github.com/anschwa/emacs.d]]
+Use js2-mode in =<script>= tags
+#+BEGIN_SRC emacs-lisp
+(use-package js2-mode
+  :defer t
+  :interpreter "node"
+  :config
+  (setq js2-basic-offset 2
+        js2-highlight-level 3
+        js2-mode-show-parse-errors nil
+        js2-mode-show-strict-warnings nil)
+  (setq js2-global-externs '("JSON"
+                             "jest"
+                             "describe"
+                             "it"
+                             "expect"
+                             "beforeEach"
+                             "beforeAll"
+                             "afterEach"
+                             "afterAll"
+                             "process"
+                             "module"
+                             "require"))
+  (defun my/js-mode-hook ()
+    (set (make-local-variable 'compile-command)
+         (format "node %s" (file-name-nondirectory buffer-file-name))))
+
+  (defun my/js2-mode-on-region (start end)
+    "Narrow on the active region, then turn on js2-mode."
+    (interactive "r")
+    (deactivate-mark)
+    (narrow-to-region start end)
+    (js2-mode))
+
+  (defun my/narrow-to-javascript ()
+    "Automatically narrow between <script> tags, then turn on js2-mode."
+    (interactive)
+    (let ((start-tag-name "<script")
+          (end-tag-name   "</script")
+          (start          nil)
+          (end            nil))
+      ;; Find start tag. Search backwards first to give priority to tag pairs
+      ;; the cursor is currently inside.
+      (setq start (search-backward start-tag-name nil t))
+      (when (null start)
+        ;; if start tag not found backwards, then try forwards.
+        (setq start (search-forward start-tag-name nil t)))
+      (catch 'missing-script-start-tag
+        (when (null start)
+          (throw 'missing-script-start-tag "start tag not found")))
+      ;; start is found, move cursor down a line, start highlighting
+      (forward-line)
+      (move-beginning-of-line nil)
+      (set-mark-command nil) ;(evil-visual-line)
+      ;; jump to end tag. always search forward
+      (setq end (search-forward end-tag-name nil t))
+      (catch 'missing-script-end-tag
+        (when (null end)
+          (deactivate-mark)
+          (throw 'missing-script-end-tag "end tag not found")))
+      ;; end tag is found. now move cursor up one line
+      (forward-line -1)
+      (move-end-of-line nil)
+      ;; turn on js2-mode for this region. (and narrow)
+      (call-interactively #'my/js2-mode-on-region)))
+
+  (defun my/widen-from-javascript ()
+    "Undo the effects of `my/narrow-to-javascript'."
+    (interactive)
+    (widen)
+    (web-mode))
+
+  :bind (:map js2-mode-map
+              ("C-c j w" . my/widen-from-javascript))
+  :hook ((js-mode . my/js-mode-hook)))
+
+(use-package web-mode
+  :bind (:map web-mode-map
+              ("C-c j n" . my/narrow-to-javascript)))
+#+END_SRC
+
+**** rjsx
+#+BEGIN_SRC emacs-lisp
+(use-package rjsx-mode
+  :defer t
+  :mode ("\\.js\\'"))
+#+END_SRC
+
+*** magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :defer t)
+#+END_SRC
+
+*** markdown
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :defer t
+  :init (setq markdown-command "multimarkdown")
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.mdx?$\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode)))
+#+END_SRC
+
+*** prettier
+Dependency: prettier
+#+BEGIN_SRC sh :tangle no
+npm i -g prettier
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package prettier
+  :defer t)
+#+END_SRC
+
+*** rainbow
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-mode
+  :defer t)
+#+END_SRC
+
+*** try
+#+BEGIN_SRC emacs-lisp
+(use-package try
+  :defer t)
+#+END_SRC
+
+*** web
+#+BEGIN_SRC emacs-lisp
+(use-package web-mode
+  :defer t
+	:mode ("\\.html\\'")
+	:config
+	(add-to-list 'web-mode-comment-formats '("javascript" . "//"))
+	(setq web-mode-markup-indent-offset 2)
+	(setq web-mode-css-indent-offset 2)
+	(setq web-mode-code-indent-offset 2)
+	(setq web-mode-style-padding 0)
+	(setq web-mode-script-padding 0))
+#+END_SRC
+
+**** emmet
+#+BEGIN_SRC emacs-lisp
+(use-package emmet-mode
+  :defer t
+  :diminish
+  :config
+  (setq emmet-indentation 2)
+  (defadvice emmet-preview-accept (after expand-and-fontify activate)
+    "Update the font-face after an emmet expantion."
+    (font-lock-flush))
+  :hook (web-mode css-mode))
+#+END_SRC
+
+*** which-key
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :defer t
+  :diminish which-key-mode
+	:config
+	(which-key-mode))
+#+END_SRC
+
 *** windmove
 #+BEGIN_SRC emacs-lisp
 (use-package windmove
   :bind
-  (("C-c f"  . 'windmove-right)
-   ("C-c b"  . 'windmove-left)
-   ("C-c n"  . 'windmove-down)
-   ("C-c p"  . 'windmove-up)))
+  (("C-c w f"  . 'windmove-right)
+   ("C-c w b"  . 'windmove-left)
+   ("C-c w n"  . 'windmove-down)
+   ("C-c w p"  . 'windmove-up)))
+#+END_SRC
+
+*** yasnippet
+#+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+  :diminish yas-minor-mode
+	:config (yas-global-mode 1))
+
+(use-package yasnippet-snippets)
 #+END_SRC
 
 * Utility Functions
