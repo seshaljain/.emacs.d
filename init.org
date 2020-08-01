@@ -58,8 +58,8 @@ Define separate =customize= file
 #+BEGIN_SRC emacs-lisp
 (require 'package)
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-										(not (gnutls-available-p))))
-			 (proto (if no-ssl "http" "https")))
+                    (not (gnutls-available-p))))
+       (proto (if no-ssl "http" "https")))
   (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
   (when (< emacs-major-version 24)
     ;; For important compatibility libraries like cl-lib
@@ -98,21 +98,21 @@ Define separate =customize= file
 *** counsel/swiper/ivy
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
-	:bind (("M-x" . counsel-M-x)
-				 ("C-x C-f" . counsel-find-file)
-				 ("C-x l" . counsel-locate)
-				 ("C-x b" . counsel-ibuffer)
-	       ("M-y" . counsel-yank-pop)))
+  :bind (("M-x" . counsel-M-x)
+         ("C-x C-f" . counsel-find-file)
+         ("C-x l" . counsel-locate)
+         ("C-x b" . counsel-ibuffer)
+         ("M-y" . counsel-yank-pop)))
 
 (use-package swiper
   :diminish ivy-mode
-	:config
-	(ivy-mode 1)
-	(setq ivy-use-virtual-buffers t)
-	(setq enable-recursive-minibuffers t)
+  :config
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
   (setq ivy-count-format "[%d/%d] ")
-	:bind (("C-s" . swiper)
-	       :map ivy-minibuffer-map ("M-y" . ivy-next-line)))
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map ("M-y" . ivy-next-line)))
 #+END_SRC
 
 *** diminish
@@ -263,14 +263,14 @@ npm i -g prettier
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
   :defer t
-	:mode ("\\.html\\'")
-	:config
-	(add-to-list 'web-mode-comment-formats '("javascript" . "//"))
-	(setq web-mode-markup-indent-offset 2)
-	(setq web-mode-css-indent-offset 2)
-	(setq web-mode-code-indent-offset 2)
-	(setq web-mode-style-padding 0)
-	(setq web-mode-script-padding 0))
+  :mode ("\\.html\\'")
+  :config
+  (add-to-list 'web-mode-comment-formats '("javascript" . "//"))
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-style-padding 0)
+  (setq web-mode-script-padding 0))
 #+END_SRC
 
 **** emmet
@@ -291,8 +291,8 @@ npm i -g prettier
 (use-package which-key
   :defer t
   :diminish which-key-mode
-	:config
-	(which-key-mode))
+  :config
+  (which-key-mode))
 #+END_SRC
 
 *** windmove
@@ -309,7 +309,7 @@ npm i -g prettier
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :diminish yas-minor-mode
-	:config (yas-global-mode 1))
+  :config (yas-global-mode 1))
 
 (use-package yasnippet-snippets)
 #+END_SRC
@@ -318,8 +318,8 @@ npm i -g prettier
 ** Reload config
 #+BEGIN_SRC emacs-lisp
 (defun my/reload-config()
-	"Reload init.el"
-	(interactive)
+  "Reload init.el"
+  (interactive)
   (load-file "~/.emacs.d/init.el"))
 #+END_SRC
 
@@ -329,11 +329,11 @@ special ones
 [[https://emacsredux.com/blog/2013/03/30/kill-other-buffers/][https://emacsredux.com/blog/2013/03/30/kill-other-buffers/]]
 #+BEGIN_SRC emacs-lisp
 (defun my/kill-other-buffers ()
-	"Kill all buffers except the active buffer"
-	(interactive)
-	(dolist (buffer (buffer-list))
-		(unless (or (eql buffer (current-buffer)) (not (buffer-file-name buffer)))
-			(kill-buffer buffer))))
+  "Kill all buffers except the active buffer"
+  (interactive)
+  (dolist (buffer (buffer-list))
+    (unless (or (eql buffer (current-buffer)) (not (buffer-file-name buffer)))
+      (kill-buffer buffer))))
 #+END_SRC
 
 ** Kill All buffers
@@ -376,12 +376,12 @@ special ones
 ** Create new scratch buffer
 #+BEGIN_SRC emacs-lisp
 (defun my/create-scratch-buffer nil
-	"Create a new scratch buffer <*scratchN*>."
+  "Create a new scratch buffer <*scratchN*>."
   (interactive)
   (let ((n 0) bufname)
     (while (progn
              (setq bufname (concat "*scratch"
-																	 (if (= n 0) "" (int-to-string n)) "*"))
+                                   (if (= n 0) "" (int-to-string n)) "*"))
              (setq n (1+ n))
              (get-buffer bufname)))
     (switch-to-buffer (get-buffer-create bufname))
@@ -504,23 +504,23 @@ http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
   "Open the current file or dired marked files in external app."
   (interactive)
   (let* (($file-list
-					(if @fname (progn (list @fname))
-						(if (string-equal major-mode "dired-mode")
-								(dired-get-marked-files)
-							(list (buffer-file-name)))))
-				 ($do-it-p (if (<= (length $file-list) 5)
-											 t (y-or-n-p "Open more than 5 files? "))))
+          (if @fname (progn (list @fname))
+            (if (string-equal major-mode "dired-mode")
+                (dired-get-marked-files)
+              (list (buffer-file-name)))))
+         ($do-it-p (if (<= (length $file-list) 5)
+                       t (y-or-n-p "Open more than 5 files? "))))
     (when $do-it-p
-			(cond ((string-equal system-type "darwin")
-						 (mapc
-							(lambda ($fpath)
-								(shell-command
-								 (concat "open "
-												 (shell-quote-argument $fpath))))  $file-list))
-						((string-equal system-type "gnu/linux")
-						 (mapc
-							(lambda ($fpath) (let ((process-connection-type nil))
-																 (start-process "" nil "xdg-open" $fpath))) $file-list))))))
+      (cond ((string-equal system-type "darwin")
+             (mapc
+              (lambda ($fpath)
+                (shell-command
+                 (concat "open "
+                         (shell-quote-argument $fpath))))  $file-list))
+            ((string-equal system-type "gnu/linux")
+             (mapc
+              (lambda ($fpath) (let ((process-connection-type nil))
+                                 (start-process "" nil "xdg-open" $fpath))) $file-list))))))
 #+END_SRC
 
 ** C++ compile without Makefile
@@ -557,15 +557,15 @@ Don't indent code blocks
 
 (setq org-capture-templates
       '(("t" "TIL" entry (file+headline "~/Dropbox/org/til.org" "TIL")
-				 "* %^{TIL} %^g\n%^{Description}\n%T" :prepend t)
-				("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
-				 "* %? %^L %^g\n%T" :prepend t)
+         "* %^{TIL} %^g\n%^{Description}\n%T" :prepend t)
+        ("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
+         "* %? %^L %^g\n%T" :prepend t)
         ("k" "Keybinding" entry (file "~/Dropbox/org/learn-keybindings.org")
-				 "* =%^{Keybinding}= %^g\n%^{Description}")))
+         "* =%^{Keybinding}= %^g\n%^{Description}")))
 
 (defadvice org-capture-finalize
-		(after delete-capture-frame activate)
-	"Advise capture-finalize to close the frame"
+    (after delete-capture-frame activate)
+  "Advise capture-finalize to close the frame"
   (if (equal "capture" (frame-parameter nil 'name))
       (delete-frame)))
 
@@ -582,7 +582,7 @@ Modify =<s= to insert "emacs-lisp" by default
 #+BEGIN_SRC emacs-lisp
 (eval-after-load 'org
   '(progn (add-to-list 'org-structure-template-alist
-											 '("s" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
+                       '("s" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
 #+END_SRC
 
 ** dired
@@ -616,8 +616,8 @@ Set $MANPATH, $PATH and exec-path from shell even when started from
 GUI helpers like =dmenu= or =Spotlight=
 #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'exec-path-from-shell)
-	(package-refresh-contents)
-	(package-install 'exec-path-from-shell))
+  (package-refresh-contents)
+  (package-install 'exec-path-from-shell))
 
 ;; Safeguard, so this only runs on Linux (or MacOS)
 (when (memq window-system '(mac ns x))
@@ -656,14 +656,14 @@ instead of showing the current buffer twice.
 
 #+BEGIN_SRC emacs-lisp
 (defun my/vsplit-last-buffer ()
-	"Split frame vertically and open previous buffer in other window"
+  "Split frame vertically and open previous buffer in other window"
   (interactive)
   (split-window-vertically)
   (other-window 1 nil)
   (switch-to-next-buffer))
 
 (defun my/hsplit-last-buffer ()
-	"Split frame horizontally and open previous buffer in other
+  "Split frame horizontally and open previous buffer in other
 window"
   (interactive)
   (split-window-horizontally)
@@ -674,7 +674,7 @@ window"
 A function to open the previous buffer in a new frame.
 #+BEGIN_SRC emacs-lisp
 (defun my/open-last-buffer ()
-	"Open previous buffer in new frame"
+  "Open previous buffer in new frame"
   (interactive)
   (switch-to-buffer-other-frame (other-buffer)))
 #+END_SRC
@@ -690,25 +690,25 @@ Change default split keybindings
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
 (setq ibuffer-saved-filter-groups
-			'(("files"
-							 ("dired" (mode . dired-mode))
-							 ("org" (name . "^.*org$"))
+      '(("files"
+               ("dired" (mode . dired-mode))
+               ("org" (name . "^.*org$"))
 
-							 ("web" (or (mode . web-mode)
-													(mode . css-mode)))
+               ("web" (or (mode . web-mode)
+                          (mode . css-mode)))
                ("js" (mode . rjsx-mode))
-							 ("shell" (or (mode . eshell-mode)
-														(mode . shell-mode)))
-							 ("programming" (mode . python-mode))
-							 ("emacs" (or
-												 (name . "^\\*scratch\\*$")
-												 (name . "^\\*Compile-Log\\*$")
-												 (name . "^\\*Messages\\*$"))))))
+               ("shell" (or (mode . eshell-mode)
+                            (mode . shell-mode)))
+               ("programming" (mode . python-mode))
+               ("emacs" (or
+                         (name . "^\\*scratch\\*$")
+                         (name . "^\\*Compile-Log\\*$")
+                         (name . "^\\*Messages\\*$"))))))
 
 (add-hook 'ibuffer-mode-hook
-					(lambda ()
-						(ibuffer-auto-mode 1)
-						(ibuffer-switch-to-saved-filter-groups "files")))
+          (lambda ()
+            (ibuffer-auto-mode 1)
+            (ibuffer-switch-to-saved-filter-groups "files")))
 
 (setq ibuffer-show-empty-filter-groups nil)
 
@@ -800,9 +800,9 @@ scroll-preserve-screen-position 1)
 (setq auto-save-default nil)
 
 (setq backup-directory-alist
-			`((".*" . ,temporary-file-directory)))
+      `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
-			`((".*" ,temporary-file-directory t)))
+      `((".*" ,temporary-file-directory t)))
 #+END_SRC
 
 *** Single space after sentences
@@ -819,7 +819,7 @@ scroll-preserve-screen-position 1)
 Set tab width to 2 spaces
 #+BEGIN_SRC emacs-lisp
 (setq-default tab-width 2
-							indent-tabs-mode nil)
+              indent-tabs-mode nil)
 #+END_SRC
 
 *** Add a newline at end of file
