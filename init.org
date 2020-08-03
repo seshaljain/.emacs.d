@@ -217,7 +217,16 @@ Use js2-mode in =<script>= tags
 #+BEGIN_SRC emacs-lisp
 (use-package rjsx-mode
   :defer t
-  :mode ("\\.js\\'"))
+  :mode ("\\.js\\'")
+  :config
+  (define-key rjsx-mode-map (kbd "C-c d") 'rjsx-delete-creates-full-tag)
+  (define-key rjsx-mode-map (kbd "C-d") nil))
+#+END_SRC
+
+*** lorem-ipsum
+#+BEGIN_SRC emacs-lisp
+(use-package lorem-ipsum
+  :defer t)
 #+END_SRC
 
 *** magit

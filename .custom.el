@@ -10,7 +10,7 @@
  '(org-startup-folded (quote overview))
  '(package-selected-packages
    (quote
-    (markdown-mode iedit dracula-theme dracula yasnippet-snippets which-key web-mode use-package try rjsx-mode rainbow-mode prettier magit expand-region exec-path-from-shell emmet-mode diminish counsel auto-complete ace-jump-mode))))
+    (lorem-ipsum markdown-mode iedit dracula-theme dracula yasnippet-snippets which-key web-mode use-package try rjsx-mode rainbow-mode prettier magit expand-region exec-path-from-shell emmet-mode diminish counsel auto-complete ace-jump-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
