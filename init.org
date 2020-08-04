@@ -803,10 +803,11 @@ scroll-preserve-screen-position 1)
 (electric-pair-mode 1)
 #+END_SRC
 
-*** Autosave in =/tmp=
+*** Configure file saves
 #+BEGIN_SRC emacs-lisp
 (setq make-backup-files nil)
 (setq auto-save-default nil)
+(setq create-lockfiles nil)
 
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
