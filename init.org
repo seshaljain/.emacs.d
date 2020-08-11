@@ -389,7 +389,7 @@ special ones
   (interactive)
   (let ((n 0) bufname)
     (while (progn
-             (setq bufname (concat "*scratch"
+             (setq bufname (concat "*scratch-"
                                    (if (= n 0) "" (int-to-string n)) "*"))
              (setq n (1+ n))
              (get-buffer bufname)))
@@ -740,7 +740,7 @@ utf-8 encoding for all files, resolves =\u...= in terminal
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq inhibit-startup-message t)
 (setq initial-major-mode 'org-mode)
-(setq initial-scratch-message "<s")
+(setq initial-scratch-message nil)
 #+END_SRC
 
 *** Theme
