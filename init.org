@@ -544,6 +544,18 @@ http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
              " " file))))))
 #+END_SRC
 
+** Save and compile
+#+BEGIN_SRC emacs-lisp
+(setq compilation-ask-about-save nil)
+
+(defun my/save-all-and-compile ()
+  (interactive)
+  (save-some-buffers 1)
+  (compile compile-command))
+
+(global-set-key (kbd "<f5>") 'my/save-all-and-compile)
+#+END_SRC
+
 * Modes
 ** org
 Don't ask before executing a code block
