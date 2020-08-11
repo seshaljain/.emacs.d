@@ -11,6 +11,8 @@
 init.el
 init.elc
 eshell
+bookmarks
 auto-save-list/
 elpa/
 transient/
+url/
