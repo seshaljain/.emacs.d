@@ -335,7 +335,7 @@ npm i -g prettier
 (defun my/reload-config()
   "Reload init.el"
   (interactive)
-  (load-file "~/.emacs.d/init.el"))
+  (load-file user-init-file))
 #+END_SRC
 
 ** Kill other buffers
@@ -351,7 +351,7 @@ special ones
       (kill-buffer buffer))))
 #+END_SRC
 
-** Kill All buffers
+** Kill all buffers
 #+BEGIN_SRC emacs-lisp
 (defun my/kill-all-buffers ()
   "Kill all buffers without regard for their origin."
@@ -361,7 +361,7 @@ special ones
 (global-set-key (kbd "C-M-s-k") 'my/kill-all-buffers)
 #+END_SRC
 
-** Kill dired buffers
+** Kill only dired buffers
 #+BEGIN_SRC emacs-lisp
 (defun my/kill-dired-buffers ()
   "Kill all dired buffers."
@@ -370,22 +370,6 @@ special ones
           (when (eq 'dired-mode (buffer-local-value 'major-mode buffer))
             (kill-buffer buffer)))
         (buffer-list)))
-#+END_SRC
-
-** Move lines up or down
-#+BEGIN_SRC emacs-lisp
-(defun my/move-line-up ()
-  "Move line up."
-  (interactive)
-  (transpose-lines 1)
-  (forward-line -2))
-
-(defun my/move-line-down ()
-  "Move line down."
-  (interactive)
-  (forward-line 1)
-  (transpose-lines 1)
-  (forward-line -1))
 #+END_SRC
 
 ** Create new scratch buffer
@@ -415,7 +399,7 @@ special ones
 (global-set-key (kbd "C-c k w") 'my/kill-inner-word)
 #+END_SRC
 
-** Kill Region / Line
+** DWIM kill
 - =C-w= kills the current line
 - =M-w= copies the current line
 
@@ -439,7 +423,7 @@ line instead."
      (list (line-beginning-position) (line-beginning-position 2)))))
 #+END_SRC
 
-** Rename Buffer & File
+** Rename buffer & file
 #+BEGIN_SRC emacs-lisp
 (defun my/rename-current-buffer-file ()
   "Renames current buffer and file it is visiting."
@@ -459,7 +443,7 @@ line instead."
                    name (file-name-nondirectory new-name)))))))
 #+END_SRC
 
-** Toggle Quotes
+** Toggle quotes
 #+BEGIN_SRC emacs-lisp
 (defun my/get-quote-chars ()
   "Get available string symbols from the active syntax-table"
@@ -512,7 +496,7 @@ line instead."
 (bind-key "C-c q '" 'my/toggle-quotes)
 #+END_SRC
 
-** Open non-text files in Native appliations
+** Open non-text files in native appliations
 http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
 #+BEGIN_SRC emacs-lisp
 (defun my/xdg-open (&optional @fname)
