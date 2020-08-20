@@ -787,9 +787,9 @@ utf-8 encoding for all files, resolves =\u...= in terminal
 
 *** Theme
 Dracula
-#+BEGIN_SRC emacs-lisp :tangle:no
+#+BEGIN_SRC emacs-lisp
 (use-package dracula-theme
-  :config (load-theme 'dracula))
+  :config (load-theme 'dracula t))
 #+END_SRC
 
 *** Font
