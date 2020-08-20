@@ -538,18 +538,6 @@ http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
                                  (start-process "" nil "xdg-open" $fpath))) $file-list))))))
 #+END_SRC
 
-** C++ compile without Makefile
-#+BEGIN_SRC emacs-lisp
-(add-hook 'c++-mode-hook
-  (lambda ()
-    (unless (file-exists-p "Makefile")
-      (set (make-local-variable 'compile-command)
-       (let ((file (file-name-nondirectory buffer-file-name)))
-         (concat "g++ -g -O2 -Wall -std=c++14 -o "
-             (file-name-sans-extension file)
-             " " file))))))
-#+END_SRC
-
 ** Save and compile
 #+BEGIN_SRC emacs-lisp
 (setq compilation-ask-about-save nil)
