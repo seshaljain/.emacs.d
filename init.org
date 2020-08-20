@@ -245,6 +245,12 @@ Use js2-mode in =<script>= tags
          ("\\.markdown\\'" . markdown-mode)))
 #+END_SRC
 
+*** mode-line-bell
+#+BEGIN_SRC emacs-lisp
+(use-package mode-line-bell
+  :config
+  (mode-line-bell-mode))
+#+END_SRC
 *** prettier
 Dependency: prettier
 #+BEGIN_SRC sh :tangle no
