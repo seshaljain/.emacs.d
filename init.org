@@ -603,13 +603,37 @@ Don't indent code blocks
       (delete-frame)))
 #+END_SRC
 
-*** Org Structure Templates
+*** ~Org Structure Templates~
 Modify =<s= to insert "emacs-lisp" by default
 [[https://nicholasvanhorn.com/posts/org-structure-completion.html][https://nicholasvanhorn.com/posts/org-structure-completion.html]]
+#+BEGIN_SRC emacs-lisp :tangle no
+;; (eval-after-load 'org
+;;   '(progn (add-to-list 'org-structure-template-alist
+;;                        '("s" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
+#+END_SRC
+
+*** Org Latex Export
+Use syntax highlighting via Minted
+
+#+BEGIN_SRC sh :tangle no
+pip install Pygments
+
+tlmgr install minted
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
-(eval-after-load 'org
-  '(progn (add-to-list 'org-structure-template-alist
-                       '("s" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
+(setq org-latex-listings 'minted
+      org-latex-packages-alist '(("" "minted"))
+      org-latex-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+#+END_SRC
+
+Break long lines
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-minted-options '(("breaklines" "true")
+                                 ("breakanywhere" "true")))
 #+END_SRC
 
 ** dired
