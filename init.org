@@ -549,14 +549,13 @@ http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
 
 * Modes
 ** org
-Don't ask before executing a code block
+*** Org Source Code Blocks
 #+BEGIN_SRC emacs-lisp
 (setq org-confirm-babel-evaluate nil)
-#+END_SRC
 
-Don't indent code blocks
-#+BEGIN_SRC emacs-lisp
 (setq org-edit-src-content-indentation 0)
+
+(setq org-src-window-setup 'current-window)
 #+END_SRC
 
 *** Org Capture
