@@ -82,8 +82,7 @@ Define separate =customize= file
 *** ace-jump-mode
 #+BEGIN_SRC emacs-lisp
 (use-package ace-jump-mode
-  :bind ("M-s" . ace-jump-mode)
-  :hook (prog-mode))
+  :bind ("M-s" . ace-jump-mode))
 #+END_SRC
 
 *** auto-complete
