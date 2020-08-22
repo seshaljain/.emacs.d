@@ -85,13 +85,13 @@ Define separate =customize= file
   :bind ("M-s" . ace-jump-mode))
 #+END_SRC
 
-*** auto-complete
+*** company
 #+BEGIN_SRC emacs-lisp
-(use-package auto-complete
+(use-package company
+  :diminish
   :config
-  (ac-config-default)
-  (global-auto-complete-mode t)
-  (add-to-list 'ac-modes 'rjsx-mode))
+  (setq company-idle-delay 0)
+  (global-company-mode t))
 #+END_SRC
 
 *** counsel/swiper/ivy
