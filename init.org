@@ -245,7 +245,8 @@ Use js2-mode in =<script>= tags
 *** magit
 #+BEGIN_SRC emacs-lisp
 (use-package magit
-  :defer t)
+  :defer t
+  :bind ("C-x g" . magit-status))
 #+END_SRC
 
 *** markdown
