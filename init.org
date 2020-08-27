@@ -558,19 +558,35 @@ http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
 
 *** Org Capture
 #+BEGIN_SRC emacs-lisp
-(custom-set-variables
- '(org-directory "~/Dropbox/org")
- '(org-startup-folded 'overview))
+(setq org-directory "~/Dropbox/org")
+(setq org-startup-folded 'overview)
 
 (global-set-key (kbd "C-c c") 'org-capture)
 
 (setq org-capture-templates
-      '(("t" "TIL" entry (file+headline "~/Dropbox/org/til.org" "TIL")
-         "* %^{TIL} %^g\n%^{Description}\n%T" :prepend t)
-        ("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
-         "* %? %^L %^g\n%T" :prepend t)
-        ("k" "Keybinding" entry (file "~/Dropbox/org/learn-keybindings.org")
-         "* =%^{Keybinding}= %^g\n%^{Description}")))
+      '(("t"
+         "TIL"
+         entry
+         (file+headline "~/Dropbox/org/til.org" "TIL")
+         "* %^{TIL} %^g\n%^{Description}\n%T"
+         :prepend t)
+        ("l"
+         "Link"
+         entry
+         (file+headline "~/Dropbox/org/links.org" "Links")
+         "* %? %^L %^g\n%T"
+         :prepend t)
+        ("k"
+         "Keybinding"
+         entry
+         (file "~/Dropbox/org/learn-keybindings.org")
+         "* =%^{Keybinding}= %^g\n%^{Description}")
+        ("p"
+         "CP"
+         entry
+         (file+datetree "~/Dropbox/org/cp.org")
+         "**** %^{Link} %^g\n#+BEGIN_SRC cpp\n%?\n#+END_SRC"
+         :empty-lines 1)))
 
 (defadvice org-capture-finalize
     (after delete-capture-frame activate)
