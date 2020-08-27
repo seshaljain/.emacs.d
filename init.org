@@ -797,7 +797,7 @@ Victor Mono, Inter
 *** Scrolling
 Nicer scrolling behaviour [[https://zeekat.nl/articles/making-emacs-work-for-me.html][https://zeekat.nl/articles/making-emacs-work-for-me.html]]
 #+BEGIN_SRC emacs-lisp
-(setq scroll-margin 10
+(setq scroll-margin 5
 scroll-step 1
 scroll-conservatively 100
 scroll-preserve-screen-position 1)
