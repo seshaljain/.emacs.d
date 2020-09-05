@@ -128,98 +128,18 @@ Define separate =customize= file
   :bind ("M-=" . er/expand-region))
 #+END_SRC
 
+*** eglot
+#+BEGIN_SRC emacs-lisp
+(use-package eglot
+  :hook
+  ((c-mode c++-mode python-mode) . eglot-ensure)
+  :config
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd-10")))
+#+END_SRC
+
 *** iedit
 #+BEGIN_SRC emacs-lisp
 (use-package iedit)
-#+END_SRC
-
-*** js2
-Taken from [[https://github.com/anschwa/emacs.d][https://github.com/anschwa/emacs.d]]
-Use js2-mode in =<script>= tags
-#+BEGIN_SRC emacs-lisp
-(use-package js2-mode
-  :defer t
-  :interpreter "node"
-  :config
-  (setq js2-basic-offset 2
-        js2-highlight-level 3
-        js2-mode-show-parse-errors nil
-        js2-mode-show-strict-warnings nil)
-  (setq js2-global-externs '("JSON"
-                             "jest"
-                             "describe"
-                             "it"
-                             "expect"
-                             "beforeEach"
-                             "beforeAll"
-                             "afterEach"
-                             "afterAll"
-                             "process"
-                             "module"
-                             "require"))
-  (defun my/js-mode-hook ()
-    (set (make-local-variable 'compile-command)
-         (format "node %s" (file-name-nondirectory buffer-file-name))))
-
-  (defun my/js2-mode-on-region (start end)
-    "Narrow on the active region, then turn on js2-mode."
-    (interactive "r")
-    (deactivate-mark)
-    (narrow-to-region start end)
-    (js2-mode))
-
-  (defun my/narrow-to-javascript ()
-    "Automatically narrow between <script> tags, then turn on js2-mode."
-    (interactive)
-    (let ((start-tag-name "<script")
-          (end-tag-name   "</script")
-          (start          nil)
-          (end            nil))
-      ;; Find start tag. Search backwards first to give priority to tag pairs
-      ;; the cursor is currently inside.
-      (setq start (search-backward start-tag-name nil t))
-      (when (null start)
-        ;; if start tag not found backwards, then try forwards.
-        (setq start (search-forward start-tag-name nil t)))
-      (catch 'missing-script-start-tag
-        (when (null start)
-          (throw 'missing-script-start-tag "start tag not found")))
-      ;; start is found, move cursor down a line, start highlighting
-      (forward-line)
-      (move-beginning-of-line nil)
-      (set-mark-command nil) ;(evil-visual-line)
-      ;; jump to end tag. always search forward
-      (setq end (search-forward end-tag-name nil t))
-      (catch 'missing-script-end-tag
-        (when (null end)
-          (deactivate-mark)
-          (throw 'missing-script-end-tag "end tag not found")))
-      ;; end tag is found. now move cursor up one line
-      (forward-line -1)
-      (move-end-of-line nil)
-      ;; turn on js2-mode for this region. (and narrow)
-      (call-interactively #'my/js2-mode-on-region)))
-
-  (defun my/widen-from-javascript ()
-    "Undo the effects of `my/narrow-to-javascript'."
-    (interactive)
-    (widen)
-    (web-mode))
-
-  :bind (:map js2-mode-map
-              ("C-c j w" . my/widen-from-javascript))
-  :hook ((js-mode . my/js-mode-hook)))
-
-(use-package web-mode
-  :bind (:map web-mode-map
-              ("C-c j n" . my/narrow-to-javascript)))
-#+END_SRC
-
-**** rjsx
-#+BEGIN_SRC emacs-lisp
-(use-package rjsx-mode
-  :defer t
-  :mode ("\\.js\\'"))
 #+END_SRC
 
 *** lorem-ipsum
