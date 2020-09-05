@@ -602,15 +602,6 @@ http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
       (delete-frame)))
 #+END_SRC
 
-*** ~Org Structure Templates~
-Modify =<s= to insert "emacs-lisp" by default
-[[https://nicholasvanhorn.com/posts/org-structure-completion.html][https://nicholasvanhorn.com/posts/org-structure-completion.html]]
-#+BEGIN_SRC emacs-lisp :tangle no
-;; (eval-after-load 'org
-;;   '(progn (add-to-list 'org-structure-template-alist
-;;                        '("s" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
-#+END_SRC
-
 *** Org Latex Export
 Use syntax highlighting via Minted
 
