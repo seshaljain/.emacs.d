@@ -49,8 +49,8 @@ tangled, and the tangled file is compiled."
 
 Define separate =customize= file
 #+BEGIN_SRC emacs-lisp
-  (setq custom-file "~/.emacs.d/.custom.el")
-  (load custom-file t)
+(setq custom-file (concat user-emacs-directory ".custom.el"))
+(load custom-file t)
 #+END_SRC
 
 * Packages
