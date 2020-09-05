@@ -269,6 +269,10 @@ npm i -g prettier
 (use-package prettier
   :defer t)
 #+END_SRC
+*** pyvenv
+#+BEGIN_SRC emacs-lisp
+(use-package pyvenv)
+#+END_SRC
 
 *** rainbow
 #+BEGIN_SRC emacs-lisp
