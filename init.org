@@ -623,7 +623,8 @@ tlmgr install minted
 Break long lines
 #+BEGIN_SRC emacs-lisp
 (setq org-latex-minted-options '(("breaklines" "true")
-                                 ("breakanywhere" "true")))
+                                 ("breakanywhere" "true")
+                                 ("linenos")))
 #+END_SRC
 
 ** dired
