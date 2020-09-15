@@ -189,6 +189,20 @@ npm i -g prettier
 (use-package prettier
   :defer t)
 #+END_SRC
+*** projectile
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :config
+  (projectile-global-mode)
+  (setq projectile-completion-system 'ivy)
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
+
+(use-package counsel-projectile
+  :config
+  (counsel-projectile-mode))
+#+END_SRC
+
 *** pyvenv
 #+BEGIN_SRC emacs-lisp
 (use-package pyvenv)
