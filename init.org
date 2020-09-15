@@ -137,6 +137,14 @@ Define separate =customize= file
   (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd-10")))
 #+END_SRC
 
+*** evil
+#+BEGIN_SRC emacs-lisp
+(use-package evil
+  :config
+  (evil-mode 1)
+  (evil-move-cursor-back nil))
+#+END_SRC
+
 *** iedit
 #+BEGIN_SRC emacs-lisp
 (use-package iedit)
