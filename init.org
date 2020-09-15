@@ -236,7 +236,6 @@ npm i -g prettier
 *** which-key
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
-  :defer t
   :diminish which-key-mode
   :config
   (which-key-mode))
