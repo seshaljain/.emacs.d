@@ -201,7 +201,7 @@ npm i -g prettier
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :config
-  (projectile-global-mode)
+  (projectile-mode)
   (setq projectile-completion-system 'ivy)
   :bind-keymap
   ("C-c p" . projectile-command-map))
