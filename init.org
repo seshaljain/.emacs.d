@@ -150,12 +150,6 @@ Define separate =customize= file
 (use-package iedit)
 #+END_SRC
 
-*** lorem-ipsum
-#+BEGIN_SRC emacs-lisp
-(use-package lorem-ipsum
-  :defer t)
-#+END_SRC
-
 *** magit
 #+BEGIN_SRC emacs-lisp
 (use-package magit
