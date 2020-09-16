@@ -702,11 +702,13 @@ Change default split keybindings
 *** Encoding
 utf-8 encoding for all files, resolves =\u...= in terminal
 #+BEGIN_SRC emacs-lisp
-(prefer-coding-system       'utf-8)
+(set-charset-priority 'unicode)
+(setq locale-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
-(when (display-graphic-p)
-  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+(setq default-process-coding-system '(utf-8-unix . utf-8-unix))
 #+END_SRC
 
 *** Startup
