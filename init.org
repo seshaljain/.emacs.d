@@ -765,6 +765,12 @@ scroll-preserve-screen-position 1)
 (setq column-number-mode t)
 #+END_SRC
 
+**** Display relative line numbers
+#+BEGIN_SRC emacs-lisp
+(setq display-line-numbers-type 'relative)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+#+END_SRC
+
 ** Text Editing
 *** Always highlight parentheses
 #+BEGIN_SRC emacs-lisp
