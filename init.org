@@ -141,8 +141,9 @@ Define separate =customize= file
 #+BEGIN_SRC emacs-lisp
 (use-package evil
   :config
-  (evil-mode 1)
-  (evil-move-cursor-back nil))
+  (setq evil-mode-line-format '(before . mode-line-front-space))
+  (setq evil-move-cursor-back nil)
+  (evil-mode 1))
 #+END_SRC
 
 *** iedit
