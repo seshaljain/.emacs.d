@@ -741,10 +741,11 @@ scroll-preserve-screen-position 1)
 #+END_SRC
 
 *** UI Elements
-**** Disable scrollbars and toolbar
+**** Remove window chrome
 #+BEGIN_SRC emacs-lisp
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
+(menu-bar-mode -1) ;; still accessible via <f10>
 #+END_SRC
 
 **** Show keystrokes immediately in the =echo= area
