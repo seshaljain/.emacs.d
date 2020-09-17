@@ -811,7 +811,7 @@ Set tab width to 2 spaces
 
 *** Delete trailing whitespace on save
 #+BEGIN_SRC emacs-lisp
-(add-hook 'write-file-hooks 'delete-trailing-whitespace)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 #+END_SRC
 
 *** Replace highlighted text
