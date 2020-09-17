@@ -717,8 +717,15 @@ Dracula
 *** Font
 Victor Mono, Inter
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Victor Mono 14"))
+(add-to-list 'default-frame-alist '(font . "Iosevka Term Curly 14"))
 (set-face-font 'variable-pitch "Inter")
+#+END_SRC
+
+Use emoji in Emacs 27+
+#+BEGIN_SRC emacs-lisp
+(if ( version< "27.0" emacs-version ) ; )
+    (set-fontset-font t 'symbol "Noto Color Emoji")
+  (warn "This Emacs version is too old to properly support emoji."))
 #+END_SRC
 
 *** Scrolling
