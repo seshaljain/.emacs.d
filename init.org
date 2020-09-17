@@ -175,13 +175,6 @@ Define separate =customize= file
   (mode-line-bell-mode))
 #+END_SRC
 
-*** nyan
-#+BEGIN_SRC emacs-lisp
-(use-package nyan-mode
-  :config
-  (nyan-mode t)
-  (nyan-start-animation))
-#+END_SRC
 *** prettier
 Dependency: prettier
 #+BEGIN_SRC sh :tangle no
