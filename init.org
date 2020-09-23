@@ -133,7 +133,7 @@ Define separate =customize= file
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
   :hook
-  ((c-mode c++-mode python-mode) . eglot-ensure)
+  ((c-mode c++-mode) . eglot-ensure)
   :config
   (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd-10")))
 #+END_SRC
