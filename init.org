@@ -217,6 +217,12 @@ npm i -g prettier
   :defer t)
 #+END_SRC
 
+*** undo-tree
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :diminish)
+#+END_SRC
+
 *** web
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
