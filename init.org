@@ -587,6 +587,11 @@ Open in new frame
   '(define-key dired-mode-map (kbd "C-c C-o") 'my/dired-find-file-other-frame))
 #+END_SRC
 
+** python
+#+BEGIN_SRC emacs-lisp
+(setq python-shell-interpreter "python3")
+#+END_SRC
+
 * Preferences
 ** UX
 *** Get environment variables from shell
