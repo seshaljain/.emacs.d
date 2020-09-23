@@ -146,6 +146,13 @@ Define separate =customize= file
   :config
   (setq evil-mode-line-format '(before . mode-line-front-space))
   (setq evil-move-cursor-back nil)
+  (setq
+   evil-normal-state-tag (propertize " " 'face '((:background "#ff5555")))
+   evil-insert-state-tag (propertize " " 'face '((:background "#50fa7b")))
+   evil-operator-state-tag (propertize " " 'face '((:background "#f8f8f2")))
+   evil-motion-state-tag (propertize " " 'face '((:background "#ffb86c")))
+   evil-emacs-state-tag (propertize " " 'face '((:background "#bd98f9")))
+   evil-visual-state-tag (propertize " " 'face '((:background "#f1fa8c"))))
   (evil-mode 1))
 #+END_SRC
 
