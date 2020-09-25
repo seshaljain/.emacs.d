@@ -437,18 +437,6 @@ npm i -g prettier
          (file+datetree "~/Dropbox/org/cp.org")
          "**** %^{Link} %^g\n#+BEGIN_SRC cpp\n%?\n#+END_SRC"
          :empty-lines 1)))
-
-(defadvice org-capture-finalize
-    (after delete-capture-frame activate)
-  "Advise capture-finalize to close the frame"
-  (if (equal "capture" (frame-parameter nil 'name))
-      (delete-frame)))
-
-(defadvice org-capture-destroy
-    (after delete-capture-frame activate)
-  "Advise capture-destroy to close the frame"
-  (if (equal "capture" (frame-parameter nil 'name))
-      (delete-frame)))
 #+END_SRC
 
 *** Org Latex Export
