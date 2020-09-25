@@ -745,7 +745,7 @@ Victor Mono, Inter
 Use emoji in Emacs 27+
 #+BEGIN_SRC emacs-lisp
 (if ( version< "27.0" emacs-version ) ; )
-    (set-fontset-font t 'symbol "Noto Color Emoji")
+    (set-fontset-font t 'symbol "Noto Color Emoji" nil 'prepend)
   (warn "This Emacs version is too old to properly support emoji."))
 #+END_SRC
 
