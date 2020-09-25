@@ -10,6 +10,7 @@
 
 init.el
 init.elc
+projectile.cache
 eshell
 bookmarks
 auto-save-list/
