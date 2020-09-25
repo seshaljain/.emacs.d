@@ -845,9 +845,3 @@ Set tab width to 2 spaces
 #+BEGIN_SRC emacs-lisp
 (delete-selection-mode 1)
 #+END_SRC
-
-* Keybindings
-Rebind M-x to C-x C-m
-#+BEGIN_SRC emacs-lisp
-  (global-set-key "\C-x\C-m" 'execute-extended-command)
-#+END_SRC
