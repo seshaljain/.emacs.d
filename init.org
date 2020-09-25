@@ -295,40 +295,6 @@ npm i -g prettier
   (load-file user-init-file))
 #+END_SRC
 
-** Kill other buffers
-Kill all buffers other than the current one, without messing with the
-special ones
-[[https://emacsredux.com/blog/2013/03/30/kill-other-buffers/][https://emacsredux.com/blog/2013/03/30/kill-other-buffers/]]
-#+BEGIN_SRC emacs-lisp
-(defun my/kill-other-buffers ()
-  "Kill all buffers except the active buffer"
-  (interactive)
-  (dolist (buffer (buffer-list))
-    (unless (or (eql buffer (current-buffer)) (not (buffer-file-name buffer)))
-      (kill-buffer buffer))))
-#+END_SRC
-
-** Kill all buffers
-#+BEGIN_SRC emacs-lisp
-(defun my/kill-all-buffers ()
-  "Kill all buffers without regard for their origin."
-  (interactive)
-  (mapc 'kill-buffer (buffer-list)))
-
-(global-set-key (kbd "C-M-s-k") 'my/kill-all-buffers)
-#+END_SRC
-
-** Kill only dired buffers
-#+BEGIN_SRC emacs-lisp
-(defun my/kill-dired-buffers ()
-  "Kill all dired buffers."
-  (interactive)
-  (mapc (lambda (buffer)
-          (when (eq 'dired-mode (buffer-local-value 'major-mode buffer))
-            (kill-buffer buffer)))
-        (buffer-list)))
-#+END_SRC
-
 ** Create new scratch buffer
 #+BEGIN_SRC emacs-lisp
 (defun my/create-scratch-buffer nil
@@ -342,42 +308,6 @@ special ones
              (get-buffer bufname)))
     (switch-to-buffer (get-buffer-create bufname))
     (org-mode)))
-#+END_SRC
-
-** Actually kill-word
-#+BEGIN_SRC emacs-lisp
-(defun my/kill-inner-word ()
-  "Kills the entire word under cursor."
-  (interactive)
-  (forward-char 1)
-  (backward-word)
-  (kill-word 1))
-
-(global-set-key (kbd "C-c k w") 'my/kill-inner-word)
-#+END_SRC
-
-** DWIM kill
-- =C-w= kills the current line
-- =M-w= copies the current line
-
-If there is an active region, =C-w= and =M-w= work as default
-#+BEGIN_SRC emacs-lisp
-(defadvice kill-region (before slick-cut activate compile)
-  "When called interactively with no active region, kill a single
-line instead."
-  (interactive
-   (if mark-active
-       (list (region-beginning) (region-end))
-     (list (line-beginning-position) (line-beginning-position 2)))))
-
-(defadvice kill-ring-save (before slick-copy activate compile)
-  "When called interactively with no active region, copy a single
-line instead."
-  (interactive
-   (if mark-active
-       (list (region-beginning) (region-end))
-     (message "Copied line")
-     (list (line-beginning-position) (line-beginning-position 2)))))
 #+END_SRC
 
 ** Rename buffer & file
@@ -451,32 +381,6 @@ line instead."
                   (t (forward-char 1)))))))))
 
 (bind-key "C-c q '" 'my/toggle-quotes)
-#+END_SRC
-
-** Open non-text files in native appliations
-http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html
-#+BEGIN_SRC emacs-lisp
-(defun my/xdg-open (&optional @fname)
-  "Open the current file or dired marked files in external app."
-  (interactive)
-  (let* (($file-list
-          (if @fname (progn (list @fname))
-            (if (string-equal major-mode "dired-mode")
-                (dired-get-marked-files)
-              (list (buffer-file-name)))))
-         ($do-it-p (if (<= (length $file-list) 5)
-                       t (y-or-n-p "Open more than 5 files? "))))
-    (when $do-it-p
-      (cond ((string-equal system-type "darwin")
-             (mapc
-              (lambda ($fpath)
-                (shell-command
-                 (concat "open "
-                         (shell-quote-argument $fpath))))  $file-list))
-            ((string-equal system-type "gnu/linux")
-             (mapc
-              (lambda ($fpath) (let ((process-connection-type nil))
-                                 (start-process "" nil "xdg-open" $fpath))) $file-list))))))
 #+END_SRC
 
 ** Save and compile
