@@ -235,7 +235,7 @@ Human readable units
 *** evil
 #+BEGIN_SRC emacs-lisp
 (use-package evil
-  :config
+  :init
   (setq evil-mode-line-format '(before . mode-line-front-space))
   (setq evil-move-cursor-back nil)
   (setq
@@ -245,7 +245,11 @@ Human readable units
    evil-motion-state-tag (propertize " " 'face '((:background "#ffb86c")))
    evil-emacs-state-tag (propertize " " 'face '((:background "#bd98f9")))
    evil-visual-state-tag (propertize " " 'face '((:background "#f1fa8c"))))
+  :config
   (evil-mode 1))
+
+(use-package evil-magit
+  :after magit)
 #+END_SRC
 
 *** iedit
