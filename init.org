@@ -509,6 +509,11 @@ Nicer scrolling behaviour [[https://zeekat.nl/articles/making-emacs-work-for-me.
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 #+END_SRC
 
+**** Prefer vertical splits
+#+BEGIN_SRC emacs-lisp
+(setq split-width-threshold 120)
+#+END_SRC
+
 ** Text Editing
 *** Always highlight parentheses
 #+BEGIN_SRC emacs-lisp
