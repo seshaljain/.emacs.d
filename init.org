@@ -167,11 +167,6 @@ Human readable units
 #+END_SRC
 
 ** External packages
-*** ace-jump-mode
-#+BEGIN_SRC emacs-lisp
-(use-package ace-jump-mode
-  :bind ("M-s" . ace-jump-mode))
-#+END_SRC
 *** bufler
 #+BEGIN_SRC emacs-lisp
 (use-package bufler)
