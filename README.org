@@ -1,1 +1,619 @@
-init.org
+#+TITLE: Emacs config
+#+AUTHOR: Seshal Jain
+#+BABEL: :cache yes
+#+PROPERTY: header-args :tangle init.el :results silent
+
+#+BEGIN_QUOTE
+I’m sure I’ll be tweaking it forever though, it’s almost as satisfying
+as actually using it.
+#+END_QUOTE
+
+* Meta
+When this configuration is loaded for the first time, the =init.el= is
+the file that is loaded.
+#+BEGIN_SRC emacs-lisp :tangle no
+;; This file replaces itself with the actual configuration at first run.
+;; Tangle requires org
+(require 'org)
+;; Open the configuration
+(find-file (concat user-emacs-directory "README.org"))
+;; tangle init.org
+(org-babel-tangle)
+;; load init.el
+(load-file (concat user-emacs-directory "init.el"))
+;; byte-compile init.el
+(byte-compile-file (concat user-emacs-directory "init.el"))
+#+END_SRC
+
+Lexical scoping for the init-file is needed, it can be specified in
+the header.
+This is the first line of the actual configuration:
+#+BEGIN_SRC emacs-lisp
+;;; -*- lexical-binding: t -*-
+#+END_SRC
+
+Tangle and compile this file on save automatically:
+#+BEGIN_SRC emacs-lisp
+(defun tangle-init ()
+  "If the current buffer is 'init.org' the code-blocks are
+tangled, and the tangled file is compiled."
+  (when (equal (buffer-file-name)
+               (expand-file-name (concat user-emacs-directory "README.org")))
+    ;; Avoid running hooks when tangling.
+    (let ((prog-mode-hook nil))
+      (org-babel-tangle)
+      (byte-compile-file (concat user-emacs-directory "init.el")))))
+(add-hook 'after-save-hook 'tangle-init)
+#+END_SRC
+
+Define separate =customize= file
+#+BEGIN_SRC emacs-lisp
+(setq custom-file (concat user-emacs-directory ".custom.el"))
+(load custom-file t)
+#+END_SRC
+
+* Packages
+** Add package archives
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                    (not (gnutls-available-p))))
+       (proto (if no-ssl "http" "https")))
+  (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+  (when (< emacs-major-version 24)
+    ;; For important compatibility libraries like cl-lib
+    (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
+
+(package-initialize)
+#+END_SRC
+
+** Setup use-package
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+#+END_SRC
+
+** Bundled packages
+*** org
+#+BEGIN_SRC emacs-lisp
+(setq org-startup-folded 'overview)
+#+END_SRC
+
+**** Org Source Code Blocks
+#+BEGIN_SRC emacs-lisp
+(setq org-confirm-babel-evaluate nil)
+(setq org-edit-src-content-indentation 0)
+(setq org-src-window-setup 'current-window)
+#+END_SRC
+
+**** Org Capture
+#+BEGIN_SRC emacs-lisp
+(setq org-directory "~/Dropbox/org")
+
+(global-set-key (kbd "C-c c") 'org-capture)
+
+(setq org-capture-templates
+      '(("t"
+          "TIL"
+          entry
+          (file+headline "~/Dropbox/org/til.org" "TIL")
+          "* %^{TIL} %^g\n%^{Description}\n%T"
+          :prepend t)
+         ("l"
+          "Link"
+          entry
+          (file+headline "~/Dropbox/org/links.org" "Links")
+          "* %? %^L %^g\n%T"
+          :prepend t)
+         ("k"
+          "Keybinding"
+          entry
+          (file "~/Dropbox/org/learn-keybindings.org")
+          "* =%^{Keybinding}= %^g\n%^{Description}")
+         ("p"
+          "CP"
+          entry
+          (file+datetree "~/Dropbox/org/cp.org")
+          "**** %^{Link} %^g\n#+BEGIN_SRC cpp\n%?\n#+END_SRC"
+          :empty-lines 1)))
+#+END_SRC
+
+**** Org Latex Export
+Use syntax highlighting via Minted
+
+#+BEGIN_SRC sh :tangle no
+pip install Pygments
+
+tlmgr install minted
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-listings 'minted
+      org-latex-packages-alist '(("" "minted"))
+      org-latex-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+#+END_SRC
+
+Break long lines
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-minted-options '(("breaklines" "true")
+                                 ("breakanywhere" "true")
+                                 ("linenos")))
+#+END_SRC
+
+*** dired
+Ability to use =a= to visit a new directory or file in =dired= instead
+of using =RET=. =RET= works just fine, but it will create a new buffer
+for /every/ interaction whereas =a= reuses the current buffer.
+#+BEGIN_SRC emacs-lisp
+(put 'dired-find-alternate-file 'disabled nil)
+#+END_SRC
+
+Human readable units
+#+BEGIN_SRC emacs-lisp
+(setq-default dired-listing-switches "-alh")
+#+END_SRC
+
+*** python
+#+BEGIN_SRC emacs-lisp
+(setq python-shell-interpreter "python3")
+#+END_SRC
+
+** External packages
+*** bufler
+#+BEGIN_SRC emacs-lisp
+(use-package bufler)
+#+END_SRC
+
+*** company
+#+BEGIN_SRC emacs-lisp
+(use-package company
+  :diminish
+  :config
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 2)
+  (setq company-selection-wrap-around t)
+  (setq company-tooltip-align-annotations t)
+  (global-company-mode t))
+#+END_SRC
+
+*** counsel/ivy/swiper
+#+BEGIN_SRC emacs-lisp
+(use-package counsel
+  :config
+  (setq ivy-wrap t)
+  :bind (("M-x" . counsel-M-x)
+         ("C-x f" . counsel-find-file)
+         ("C-x b" . counsel-ibuffer)
+         ("M-y" . counsel-yank-pop)))
+
+(use-package swiper
+  :bind (("C-s" . swiper)
+         ("C-c s" . swiper-thing-at-point)))
+
+(use-package ivy
+  :diminish
+  :config
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-use-selectable-prompt t)
+  (setq ivy-count-format "[%d/%d] ")
+  (ivy-mode 1))
+#+END_SRC
+
+*** diminish
+#+BEGIN_SRC emacs-lisp
+(use-package diminish)
+#+END_SRC
+
+*** expand-region
+#+BEGIN_SRC emacs-lisp
+(use-package expand-region
+  :bind ("M-=" . er/expand-region))
+#+END_SRC
+
+*** eglot
+#+BEGIN_SRC emacs-lisp
+(use-package eglot
+  :hook
+  ((c-mode c++-mode) . eglot-ensure)
+  :config
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd-10")))
+#+END_SRC
+
+*** evil
+#+BEGIN_SRC emacs-lisp
+(use-package evil
+  :init
+  (setq evil-mode-line-format '(before . mode-line-front-space))
+  (setq evil-move-cursor-back nil)
+  (setq
+   evil-normal-state-tag (propertize " " 'face '((:background "#ff5555")))
+   evil-insert-state-tag (propertize " " 'face '((:background "#50fa7b")))
+   evil-operator-state-tag (propertize " " 'face '((:background "#f8f8f2")))
+   evil-motion-state-tag (propertize " " 'face '((:background "#ffb86c")))
+   evil-emacs-state-tag (propertize " " 'face '((:background "#bd98f9")))
+   evil-visual-state-tag (propertize " " 'face '((:background "#f1fa8c"))))
+  :config
+  (evil-mode 1))
+
+(use-package evil-magit
+  :after magit)
+#+END_SRC
+
+*** iedit
+#+BEGIN_SRC emacs-lisp
+(use-package iedit)
+#+END_SRC
+
+*** magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :defer t
+  :bind ("C-x g" . magit-status))
+#+END_SRC
+
+*** markdown
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :defer t
+  :init (setq markdown-command "multimarkdown")
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.mdx?$\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode)))
+#+END_SRC
+
+*** mode-line-bell
+#+BEGIN_SRC emacs-lisp
+(use-package mode-line-bell
+  :config
+  (mode-line-bell-mode))
+#+END_SRC
+
+*** prettier
+Dependency: prettier
+#+BEGIN_SRC sh :tangle no
+npm i -g prettier
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package prettier
+  :defer t)
+#+END_SRC
+*** projectile
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :config
+  (projectile-mode)
+  (setq projectile-completion-system 'ivy)
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
+
+(use-package counsel-projectile
+  :config
+  (counsel-projectile-mode))
+#+END_SRC
+
+*** pyvenv
+#+BEGIN_SRC emacs-lisp
+(use-package pyvenv)
+#+END_SRC
+
+*** rainbow
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-mode
+  :defer t)
+#+END_SRC
+
+*** try
+#+BEGIN_SRC emacs-lisp
+(use-package try
+  :defer t)
+#+END_SRC
+
+*** undo-tree
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :diminish)
+#+END_SRC
+
+*** web
+#+BEGIN_SRC emacs-lisp
+(use-package web-mode
+  :defer t
+  :mode ("\\.html\\'")
+  :config
+  (add-to-list 'web-mode-comment-formats '("javascript" . "//"))
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-style-padding 0)
+  (setq web-mode-script-padding 0))
+#+END_SRC
+
+**** emmet
+#+BEGIN_SRC emacs-lisp
+(use-package emmet-mode
+  :defer t
+  :diminish
+  :config
+  (setq emmet-indentation 2)
+  (defadvice emmet-preview-accept (after expand-and-fontify activate)
+    "Update the font-face after an emmet expantion."
+    (font-lock-flush))
+  :hook (web-mode css-mode))
+#+END_SRC
+
+*** which-key
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :diminish which-key-mode
+  :config
+  (which-key-mode))
+#+END_SRC
+
+*** yasnippet
+#+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+  :diminish yas-minor-mode
+  :config (yas-global-mode 1))
+
+(use-package yasnippet-snippets)
+#+END_SRC
+
+* Preferences
+** UX
+*** Get environment variables from shell
+Set $MANPATH, $PATH and exec-path from shell even when started from
+GUI helpers like =dmenu= or =Spotlight=
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'exec-path-from-shell)
+  (package-refresh-contents)
+  (package-install 'exec-path-from-shell))
+
+;; Safeguard, so this only runs on Linux (or MacOS)
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+#+END_SRC
+
+*** Increase GC Threshold
+Allow 20MB (instead of 0.76MB) before calling GC
+#+BEGIN_SRC emacs-lisp
+(setq gc-cons-threshold 20000000)
+#+END_SRC
+
+*** Ask =y/n= instead of =yes/no=
+#+BEGIN_SRC emacs-lisp
+  (fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
+*** Auto revert files on change
+#+BEGIN_SRC emacs-lisp
+(global-auto-revert-mode t)
+#+END_SRC
+
+*** Use ibuffer as default buffer list
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+(setq ibuffer-saved-filter-groups
+      '(("files"
+               ("dired" (mode . dired-mode))
+               ("org" (name . "^.*org$"))
+
+               ("web" (or (mode . web-mode)
+                          (mode . css-mode)))
+               ("js" (mode . rjsx-mode))
+               ("shell" (or (mode . eshell-mode)
+                            (mode . shell-mode)))
+               ("programming" (mode . python-mode))
+               ("emacs" (or
+                         (name . "^\\*scratch\\*$")
+                         (name . "^\\*Compile-Log\\*$")
+                         (name . "^\\*Messages\\*$"))))))
+
+(add-hook 'ibuffer-mode-hook
+          (lambda ()
+            (ibuffer-auto-mode 1)
+            (ibuffer-switch-to-saved-filter-groups "files")))
+
+(setq ibuffer-show-empty-filter-groups nil)
+
+(setq ibuffer-expert t)
+#+END_SRC
+
+** UI
+*** Encoding
+utf-8 encoding for all files, resolves =\u...= in terminal
+#+BEGIN_SRC emacs-lisp
+(set-charset-priority 'unicode)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+#+END_SRC
+
+*** Startup
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+(setq inhibit-startup-message t)
+(setq initial-scratch-message nil)
+(setq initial-major-mode 'org-mode)
+#+END_SRC
+
+*** Theme
+Dracula
+#+BEGIN_SRC emacs-lisp
+(use-package dracula-theme
+  :config (load-theme 'dracula t))
+#+END_SRC
+
+*** Font
+Victor Mono, Inter
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist '(font . "Iosevka Term Curly 14"))
+(set-face-font 'variable-pitch "Inter")
+#+END_SRC
+
+Use emoji in Emacs 27+
+#+BEGIN_SRC emacs-lisp
+(if ( version< "27.0" emacs-version ) ; )
+    (set-fontset-font t 'symbol "Noto Color Emoji" nil 'prepend)
+  (warn "This Emacs version is too old to properly support emoji."))
+#+END_SRC
+
+*** Scrolling
+Nicer scrolling behaviour [[https://zeekat.nl/articles/making-emacs-work-for-me.html][https://zeekat.nl/articles/making-emacs-work-for-me.html]]
+#+BEGIN_SRC emacs-lisp
+(setq scroll-step 1
+      scroll-conservatively 100
+      scroll-preserve-screen-position 1)
+
+(setq mouse-wheel-follow-mouse 't)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+#+END_SRC
+
+*** UI Elements
+**** Remove window chrome
+#+BEGIN_SRC emacs-lisp
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1) ;; still accessible via <f10>
+#+END_SRC
+
+**** Show keystrokes immediately in the =echo= area
+#+BEGIN_SRC emacs-lisp
+(setq echo-keystrokes 0.1)
+#+END_SRC
+
+**** Always show line and col num in modeline
+#+BEGIN_SRC emacs-lisp
+(setq line-number-mode t)
+(setq column-number-mode t)
+#+END_SRC
+
+**** Display relative line numbers
+#+BEGIN_SRC emacs-lisp
+(setq display-line-numbers-type 'relative)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+#+END_SRC
+
+**** Prefer vertical splits
+#+BEGIN_SRC emacs-lisp
+(setq split-width-threshold 120)
+#+END_SRC
+
+** Text Editing
+*** Always highlight parentheses
+#+BEGIN_SRC emacs-lisp
+(show-paren-mode 1)
+#+END_SRC
+
+*** Autocomplete brackets
+#+BEGIN_SRC emacs-lisp
+(electric-pair-mode 1)
+#+END_SRC
+
+*** Configure backup files
+#+BEGIN_SRC emacs-lisp
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+(setq create-lockfiles nil)
+
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
+#+END_SRC
+
+*** Single space after sentences
+#+BEGIN_SRC
+(setq sentence-end-double-space nil)
+#+END_SRC
+
+*** Enable narrow-to-region
+#+BEGIN_SRC emacs-lisp
+(put 'narrow-to-region 'disabled nil)
+#+END_SRC
+
+*** Indentation
+Set tab width to 2 spaces
+#+BEGIN_SRC emacs-lisp
+(setq-default tab-width 2
+              indent-tabs-mode nil)
+#+END_SRC
+
+*** Add a newline at end of file
+#+BEGIN_SRC emacs-lisp
+(setq require-final-newline t)
+#+END_SRC
+
+*** Delete trailing whitespace on save
+#+BEGIN_SRC emacs-lisp
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+#+END_SRC
+
+*** Replace highlighted text
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode 1)
+#+END_SRC
+* Utility Functions
+** Reload config
+#+BEGIN_SRC emacs-lisp
+(defun my-reload-config()
+  "Reload init.el"
+  (interactive)
+  (load-file user-init-file))
+#+END_SRC
+
+** Create new scratch buffer
+#+BEGIN_SRC emacs-lisp
+(defun my-create-scratch-buffer nil
+  "Create a new scratch buffer <*scratch-N*>."
+  (interactive)
+  (let ((n 0) bufname)
+    (while (progn
+             (setq bufname (concat "*scratch-"
+                                   (if (= n 0) "" (int-to-string n)) "*"))
+             (setq n (1+ n))
+             (get-buffer bufname)))
+    (switch-to-buffer (get-buffer-create bufname))
+    (org-mode)))
+#+END_SRC
+
+** Rename buffer & file
+#+BEGIN_SRC emacs-lisp
+(defun my-rename-current-buffer-file ()
+  "Renames current buffer and file it is visiting."
+  (interactive)
+  (let ((name (buffer-name))
+        (filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (error "Buffer '%s' is not visiting a file" name)
+      (let ((new-name (read-file-name "New name: " filename)))
+        (if (get-buffer new-name)
+            (error "A buffer named '%s' already exists" new-name)
+          (rename-file filename new-name 1)
+          (rename-buffer new-name)
+          (set-visited-file-name new-name)
+          (set-buffer-modified-p nil)
+          (message "File '%s' successfully renamed to '%s'"
+                   name (file-name-nondirectory new-name)))))))
+#+END_SRC
+
+** Save and compile
+#+BEGIN_SRC emacs-lisp
+(setq compilation-ask-about-save nil)
+
+(defun my-save-all-and-compile ()
+  (interactive)
+  (save-some-buffers 1)
+  (compile compile-command))
+
+(global-set-key (kbd "<f5>") 'my-save-all-and-compile)
+#+END_SRC
