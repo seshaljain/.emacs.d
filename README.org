@@ -241,9 +241,6 @@ Human readable units
    evil-visual-state-tag (propertize " " 'face '((:background "#f1fa8c"))))
   :config
   (evil-mode 1))
-
-(use-package evil-magit
-  :after magit)
 #+END_SRC
 
 *** iedit
